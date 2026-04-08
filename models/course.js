@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const courseSchema = new mongoose.Schema({
-  // Thông tin cơ bản
+  // Mã môn học
   courseCode: {
     type: String,
     required: [true, "Mã môn học là bắt buộc"],
@@ -9,34 +9,18 @@ const courseSchema = new mongoose.Schema({
     trim: true,
     uppercase: true,
   },
+
+  // Tên môn
   courseName: {
     type: String,
     required: [true, "Tên môn học là bắt buộc"],
     trim: true,
-  },
-  description: {
-    type: String,
-    trim: true,
-  },
-
-  // Thông tin chi tiết
-  credits: {
-    type: Number,
-    required: [true, "Số tín chỉ là bắt buộc"],
-    min: [1, "Tối thiểu 1 tín chỉ"],
-    max: [4, "Tối đa 4 tín chỉ"],
   },
 
   // Giảng viên
   instructor: {
     type: String,
     required: [true, "Giảng viên là bắt buộc"],
-    trim: true,
-  },
-  instructorEmail: {
-    type: String,
-    required: true,
-    lowercase: true,
     trim: true,
   },
 
@@ -48,12 +32,14 @@ const courseSchema = new mongoose.Schema({
       required: true,
     },
     startTime: {
-      type: String, // format: "HH:mm"
-      required: true,
+      type: String,
+      required: [true, "Giờ bắt đầu là bắt buộc"],
+      match: [/^\d{2}:\d{2}$/, "Định dạng giờ không hợp lệ (HH:mm)"],
     },
     endTime: {
-      type: String, // format: "HH:mm"
-      required: true,
+      type: String,
+      required: [true, "Giờ kết thúc là bắt buộc"],
+      match: [/^\d{2}:\d{2}$/, "Định dạng giờ không hợp lệ (HH:mm)"],
     },
     location: {
       type: String,
@@ -74,59 +60,18 @@ const courseSchema = new mongoose.Schema({
     min: 0,
   },
 
-  // Kỳ học
-  semester: {
-    type: String,
-    required: [true, "Kỳ học là bắt buộc"],
-    enum: ["HK1", "HK2", "HK3", "Hè"],
-    trim: true,
-  },
-  academicYear: {
-    type: String,
-    required: [true, "Năm học là bắt buộc"],
-    trim: true,
-  },
-
-  // Điều kiện tiên quyết
-  prerequisites: [
-    {
-      type: String,
-      trim: true,
-    },
-  ],
-
   // Trạng thái
   status: {
     type: String,
-    enum: ["Mở", "Đóng", "Hủy", "Chờ duyệt"],
+    enum: ["Mở", "Đóng", "Hủy"],
     default: "Mở",
   },
-  isFull: {
-    type: Boolean,
-    default: false,
-  },
 
-  // Thông tin bổ sung
-  department: {
-    type: String,
-    required: true,
-    trim: true,
-  },
-
+  // Loại môn
   courseType: {
     type: String,
     enum: ["Lý thuyết", "Thực hành", "Lý thuyết + Thực hành"],
     default: "Lý thuyết",
-  },
-
-  // Ngày bắt đầu - kết thúc
-  startDate: {
-    type: Date,
-    required: true,
-  },
-  endDate: {
-    type: Date,
-    required: true,
   },
 
   // Timestamps
@@ -140,9 +85,8 @@ const courseSchema = new mongoose.Schema({
   },
 });
 
-// Middleware: Cập nhật isFull
+// Middleware: Cập nhật ngày chỉnh sửa
 courseSchema.pre("save", function (next) {
-  this.isFull = this.currentEnrollment >= this.maxCapacity;
   this.updatedAt = Date.now();
   next();
 });
@@ -183,24 +127,18 @@ courseSchema.methods.canEnroll = function () {
   return this.status === "Mở" && this.hasAvailableSlots();
 };
 
-// Phương thức tĩnh: Lấy tất cả môn học của một khoa
-courseSchema.statics.findByDepartment = function (department) {
-  return this.find({ department: department });
+// Phương thức: Lấy tỷ lệ sức chứa
+courseSchema.methods.getCapacityPercentage = function () {
+  return Math.round((this.currentEnrollment / this.maxCapacity) * 100);
 };
 
-// Phương thức tĩnh: Lấy môn học theo kỳ học
-courseSchema.statics.findBySemester = function (semester, academicYear) {
-  return this.find({ semester: semester, academicYear: academicYear });
-};
-
-// Phương thức tĩnh: Lấy môn học còn chỗ trống
-courseSchema.statics.findAvailableCourses = function () {
-  return this.find({ status: "Mở", isFull: false });
+// Phương thức tĩnh: Tìm tất cả môn học công khai
+courseSchema.statics.findOpenCourses = function () {
+  return this.find({ status: "Mở" });
 };
 
 // Index
-courseSchema.index({ courseCode: 1, academicYear: 1, semester: 1 });
-courseSchema.index({ department: 1 });
+courseSchema.index({ courseCode: 1 });
 courseSchema.index({ status: 1 });
 
 const Course = mongoose.model("Course", courseSchema);
