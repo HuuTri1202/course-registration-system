@@ -8,10 +8,9 @@ const port = 3000;
 app.use(express.json());
 
 // connect MongoDB trực tiếp
-mongoose.connect('mongodb://127.0.0.1:27017/QLDKMH')
-    .then(() => console.log('✅ Connected MongoDB'))
+mongoose.connect('mongodb+srv://qldkmh_db_user:nOxCJf4m1xHMXmOZ@qldkmh.9t9ql4q.mongodb.net/QLDKMH')
+    .then(() => console.log('✅ Connected MongoDB Atlas'))
     .catch(err => console.log(err));
-
 // route
 
 
