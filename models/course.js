@@ -85,62 +85,6 @@ const courseSchema = new mongoose.Schema({
   },
 });
 
-// Middleware: Cập nhật ngày chỉnh sửa
-courseSchema.pre("save", function (next) {
-  this.updatedAt = Date.now();
-  next();
-});
-
-// Phương thức: Kiểm tra còn chỗ trống
-courseSchema.methods.hasAvailableSlots = function () {
-  return this.currentEnrollment < this.maxCapacity;
-};
-
-// Phương thức: Đăng kí học
-courseSchema.methods.enrollStudent = function () {
-  if (!this.hasAvailableSlots()) {
-    throw new Error("Môn học đã đầy, không thể đăng kí thêm");
-  }
-  this.currentEnrollment += 1;
-  return this.save();
-};
-
-// Phương thức: Hủy đăng kí
-courseSchema.methods.unenrollStudent = function () {
-  if (this.currentEnrollment > 0) {
-    this.currentEnrollment -= 1;
-  }
-  return this.save();
-};
-
-// Phương thức: Lấy thông tin lịch học
-courseSchema.methods.getScheduleInfo = function () {
-  return {
-    dayOfWeek: this.schedule.dayOfWeek,
-    time: `${this.schedule.startTime} - ${this.schedule.endTime}`,
-    location: this.schedule.location,
-  };
-};
-
-// Phương thức: Kiểm tra có thể đăng kí hay không
-courseSchema.methods.canEnroll = function () {
-  return this.status === "Mở" && this.hasAvailableSlots();
-};
-
-// Phương thức: Lấy tỷ lệ sức chứa
-courseSchema.methods.getCapacityPercentage = function () {
-  return Math.round((this.currentEnrollment / this.maxCapacity) * 100);
-};
-
-// Phương thức tĩnh: Tìm tất cả môn học công khai
-courseSchema.statics.findOpenCourses = function () {
-  return this.find({ status: "Mở" });
-};
-
-// Index
-courseSchema.index({ courseCode: 1 });
-courseSchema.index({ status: 1 });
-
 const Course = mongoose.model("Course", courseSchema);
 
 module.exports = Course;
