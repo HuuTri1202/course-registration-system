@@ -1,5 +1,31 @@
 const mongoose = require("mongoose");
 
+const scheduleSchema = new mongoose.Schema({
+  type: {
+    type: String,
+    enum: ["Lý thuyết", "Thực hành"],
+    required: true,
+  },
+  dayOfWeek: {
+    type: String,
+    enum: ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ nhật"],
+    required: true,
+  },
+  startTime: {
+    type: String,
+    required: true,
+    match: [/^\d{2}:\d{2}$/, "Sai format HH:mm"],
+  },
+  endTime: {
+    type: String,
+    required: true,
+    match: [/^\d{2}:\d{2}$/, "Sai format HH:mm"],
+  },
+  location: {
+    type: String,
+    required: true,
+  },
+});
 const courseSchema = new mongoose.Schema({
   // Mã môn học
   courseCode: {
@@ -25,28 +51,7 @@ const courseSchema = new mongoose.Schema({
   },
 
   // Lịch học
-  schedule: {
-    dayOfWeek: {
-      type: String,
-      enum: ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ nhật"],
-      required: true,
-    },
-    startTime: {
-      type: String,
-      required: [true, "Giờ bắt đầu là bắt buộc"],
-      match: [/^\d{2}:\d{2}$/, "Định dạng giờ không hợp lệ (HH:mm)"],
-    },
-    endTime: {
-      type: String,
-      required: [true, "Giờ kết thúc là bắt buộc"],
-      match: [/^\d{2}:\d{2}$/, "Định dạng giờ không hợp lệ (HH:mm)"],
-    },
-    location: {
-      type: String,
-      required: [true, "Địa điểm học là bắt buộc"],
-      trim: true,
-    },
-  },
+  schedule: [scheduleSchema],
 
   // Sức chứa
   maxCapacity: {
