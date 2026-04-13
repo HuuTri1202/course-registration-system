@@ -7,70 +7,48 @@
 </head>
 <body>
 
-<h2>Sửa môn học</h2>
+<div class="container">
+  <h2>✏️ Sửa môn học</h2>
 
-<form id="form">
+  <form id="form" class="form-card">
 
-  <label>Mã môn học</label>
-  <input id="code" disabled><br>
+    <label>Mã môn học</label>
+    <input id="code" disabled>
 
-  <label>Tên môn</label>
-  <input id="name" required><br>
+    <label>Tên môn</label>
+    <input id="name" required>
 
-  <label>Giảng viên</label>
-  <input id="teacher" required><br>
+    <label>Giảng viên</label>
+    <input id="teacher" required>
 
-  <label>Loại môn</label>
-  <select id="type">
-    <option value="Lý thuyết">Lý thuyết</option>
-    <option value="Thực hành">Thực hành</option>
-    <option value="Lý thuyết + Thực hành">Lý thuyết + Thực hành</option>
-  </select><br>
+    <label>Loại môn</label>
+    <select id="type">
+      <option value="Lý thuyết">Lý thuyết</option>
+      <option value="Thực hành">Thực hành</option>
+      <option value="Lý thuyết + Thực hành">Lý thuyết + Thực hành</option>
+    </select>
 
-  <label>Sĩ số tối đa</label>
-  <input type="number" id="capacity" min="1" required><br>
+    <label>Sĩ số tối đa</label>
+    <input type="number" id="capacity" min="1" required>
 
-  <h3>Lịch học</h3>
+    <label>Trạng thái</label>
+    <select id="status">
+      <option value="Mở">Mở</option>
+      <option value="Đóng">Đóng</option>
+      <option value="Hủy">Hủy</option>
+    </select>
 
-  <label>Hình thức</label>
-  <select id="scheduleType">
-    <option value="Lý thuyết">Lý thuyết</option>
-    <option value="Thực hành">Thực hành</option>
-  </select><br>
+    <h3>📅 Lịch học</h3>
+    <div id="schedule-container"></div>
 
-  <label>Thứ</label>
-  <select id="day">
-    <option>Thứ 2</option>
-    <option>Thứ 3</option>
-    <option>Thứ 4</option>
-    <option>Thứ 5</option>
-    <option>Thứ 6</option>
-    <option>Thứ 7</option>
-    <option>Chủ nhật</option>
-  </select><br>
+    <button type="button" id="addSchedule">➕ Thêm lịch</button>
 
-  <label>Giờ bắt đầu</label>
-<input type="time" id="startTime" step="60"><br>
+    <br><br>
+    <button type="submit">Cập nhật</button>
 
-<label>Giờ kết thúc</label>
-<input type="time" id="endTime" step="60"><br>
+  </form>
+</div>
 
-<p id="timeError" style="color:red;"></p>
-
-  <label>Phòng học</label>
-  <input id="location" required><br>
-
-  <label>Trạng thái</label>
-  <select id="status">
-    <option value="Mở">Mở</option>
-    <option value="Đóng">Đóng</option>
-    <option value="Hủy">Hủy</option>
-  </select><br><br>
-
-  <button type="submit">Cập nhật</button>
-
-</form>
-
-<script src="../js/edit-course.js"></script>
+<script src="../js/edit-course.js" defer></script>
 </body>
 </html>

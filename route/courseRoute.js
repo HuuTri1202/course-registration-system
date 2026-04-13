@@ -20,7 +20,7 @@ const autoCloseCourse = (course) => {
 };
 
 // ================== GET ALL ==================
-router.get('/', async (req, res) => {
+router.get('/all', async (req, res) => {
   try {
     const courses = await Course.find();
     res.json(courses);
@@ -47,7 +47,7 @@ router.get('/:courseCode', async (req, res) => {
 });
 
 // ================== CREATE ==================
-router.post('/', async (req, res) => {
+router.post('/create', async (req, res) => {
   try {
     validateCourse(req.body);
 
@@ -74,39 +74,54 @@ router.post('/', async (req, res) => {
 });
 
 // ================== UPDATE ==================
-router.put('/:courseCode', async (req, res) => {
+router.put('/update/:courseCode', async (req, res) => {
   try {
-    const course = await Course.findOne({
-      courseCode: req.params.courseCode.toUpperCase()
-    });
+    const code = req.params.courseCode.toUpperCase();
+
+    console.log("BODY:", req.body); // debug
+
+    const course = await Course.findOne({ courseCode: code });
 
     if (!course) {
-      return res.status(404).json({ message: 'Môn học không tồn tại' });
+      return res.status(404).json({ message: "Không tìm thấy môn học" });
     }
 
-    // merge data
-    Object.assign(course, req.body);
+    // update field
+    course.courseName = req.body.courseName;
+    course.instructor = req.body.instructor;
+    course.courseType = req.body.courseType;
+    course.maxCapacity = req.body.maxCapacity;
+    course.status = req.body.status;
 
-    validateCourse(course);
+    // 🔥 FIX CỨNG (overwrite hoàn toàn)
+    course.schedule = []; // clear trước
 
-    autoCloseCourse(course);
-
-    const updatedCourse = await course.save(); // ✅ có validate luôn
-
-    res.json(updatedCourse);
-
-  } catch (error) {
-
-    if (error.code === 11000) {
-      return res.status(400).json({ message: "Mã môn học đã tồn tại" });
+    if (Array.isArray(req.body.schedule)) {
+      req.body.schedule.forEach(s => {
+        course.schedule.push({
+          type: s.type,
+          dayOfWeek: s.dayOfWeek,
+          startTime: s.startTime,
+          endTime: s.endTime,
+          location: s.location
+        });
+      });
     }
 
-    res.status(400).json({ message: error.message });
+    await course.save();
+
+    console.log("UPDATED:", course);
+
+    res.json(course);
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: err.message });
   }
 });
 
 // ================== DELETE ==================
-router.delete('/:courseCode', async (req, res) => {
+router.delete('/delete/:courseCode', async (req, res) => {
   try {
     const course = await Course.findOneAndDelete({
       courseCode: req.params.courseCode.toUpperCase()

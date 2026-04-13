@@ -8,18 +8,16 @@ const scheduleSchema = new mongoose.Schema({
   },
   dayOfWeek: {
     type: String,
-    enum: ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ nhật"],
+    enum: ["Thứ 2","Thứ 3","Thứ 4","Thứ 5","Thứ 6","Thứ 7","Chủ nhật"],
     required: true,
   },
   startTime: {
     type: String,
     required: true,
-    match: [/^\d{2}:\d{2}$/, "Sai format HH:mm"],
   },
   endTime: {
     type: String,
     required: true,
-    match: [/^\d{2}:\d{2}$/, "Sai format HH:mm"],
   },
   location: {
     type: String,
@@ -27,58 +25,27 @@ const scheduleSchema = new mongoose.Schema({
   },
 });
 
-const courseSchema = new mongoose.Schema(
-  {
-    courseCode: {
-      type: String,
-      required: [true, "Mã môn học là bắt buộc"],
-      unique: true,
-      trim: true,
-      uppercase: true,
-    },
+const courseSchema = new mongoose.Schema({
+  courseCode: { type: String, required: true, unique: true, uppercase: true },
+  courseName: { type: String, required: true },
+  instructor: { type: String, required: true },
 
-    courseName: {
-      type: String,
-      required: [true, "Tên môn học là bắt buộc"],
-      trim: true,
-    },
-
-    instructor: {
-      type: String,
-      required: [true, "Giảng viên là bắt buộc"],
-      trim: true,
-    },
-
-    schedule: [scheduleSchema],
-
-    maxCapacity: {
-      type: Number,
-      required: true,
-      min: 1,
-    },
-
-    currentEnrollment: {
-      type: Number,
-      default: 0,
-      min: 0,
-    },
-
-    status: {
-      type: String,
-      enum: ["Mở", "Đóng", "Hủy"],
-      default: "Mở",
-    },
-
-    courseType: {
-      type: String,
-      enum: ["Lý thuyết", "Thực hành", "Lý thuyết + Thực hành"],
-      default: "Lý thuyết",
-    },
+  // FIX QUAN TRỌNG
+  schedule: {
+    type: [scheduleSchema],
+    default: []
   },
-  { timestamps: true } //  FIX timestamps chuẩn
-);
 
-//  Index tối ưu
-courseSchema.index({ courseCode: 1 });
+  maxCapacity: { type: Number, required: true },
+  currentEnrollment: { type: Number, default: 0 },
+
+  status: {
+    type: String,
+    enum: ["Mở", "Đóng", "Hủy"],
+    default: "Mở",
+  },
+
+  courseType: String
+});
 
 module.exports = mongoose.model("Course", courseSchema);

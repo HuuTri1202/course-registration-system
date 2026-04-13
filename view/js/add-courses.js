@@ -76,7 +76,7 @@ document.getElementById("form").onsubmit = async (e) => {
   };
 
   try {
-    const res = await fetch(API, {
+    const res = await fetch(`${API}/create`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data)

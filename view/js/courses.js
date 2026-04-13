@@ -3,7 +3,7 @@ const API = "http://localhost:3000/courses";
 async function loadCourses() {
   try {
     //  FIX endpoint
-    const res = await fetch(`${API}?ts=` + Date.now());
+    const res = await fetch(`${API}/all?ts=` + Date.now());
     const courses = await res.json();
 
     const container = document.getElementById("courseList");
@@ -72,7 +72,7 @@ async function deleteCourse(code) {
 
   try {
     // FIX endpoint
-    const res = await fetch(`${API}/${code}`, {
+    const res = await fetch(`${API}/delete/${code}`, {
       method: "DELETE"
     });
 

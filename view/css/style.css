@@ -143,3 +143,12 @@ button:hover {
 .course button:last-of-type {
   background: #007bff;
 }
+/*edit*/
+.schedule-item {
+  margin: 10px 0;
+  padding: 10px;
+  border: 1px solid #ccc;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
