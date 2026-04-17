@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đăng nhập — QLDKMH</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="auth-body">
+  <div class="auth-wrapper">
+    <div class="auth-card">
+      <div class="auth-logo">🎓</div>
+      <h1 class="auth-title">Đăng nhập</h1>
+      <p class="auth-subtitle">Hệ thống Quản lý Đăng ký Môn học</p>
+
+      <div id="auth-error" class="auth-alert" style="display:none"></div>
+
+      <form id="login-form">
+        <div class="form-group">
+          <label for="username">Tên đăng nhập</label>
+          <input type="text" id="username" placeholder="Nhập tên đăng nhập" required autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label for="password">Mật khẩu</label>
+          <div class="password-wrap">
+            <input type="password" id="password" placeholder="Nhập mật khẩu" required autocomplete="current-password">
+            <button type="button" id="toggle-pw" class="btn-eye" title="Hiện mật khẩu">👁</button>
+          </div>
+        </div>
+        <button type="submit" id="btn-login" class="btn-auth">Đăng nhập</button>
+      </form>
+
+      <p class="auth-link">Chưa có tài khoản? <a href="/register.html">Đăng ký ngay</a></p>
+    </div>
+  </div>
+  <script src="/js/login.js"></script>
+</body>
+</html>

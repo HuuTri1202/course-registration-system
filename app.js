@@ -1,36 +1,49 @@
+require("dotenv").config();
 const express = require("express");
-const mongoose = require("mongoose");
 const cors = require("cors");
 const path = require("path");
-const app = express();
-const port = 3000;
 
+const connectDB = require("./config/db");
+const errorHandler = require("./middleware/errorHandler");
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// ─── Middleware ───────────────────────────────────────────
 app.use(cors());
 app.use(express.json());
-app.use("/view", express.static(path.join(__dirname, "view")));
+app.use(express.urlencoded({ extended: true }));
+
+// HTML pages
 app.use(express.static(path.join(__dirname, "view", "public")));
+// CSS files → /css/...
+app.use("/css", express.static(path.join(__dirname, "view", "css")));
+// JS files → /js/...
+app.use("/js", express.static(path.join(__dirname, "view", "js")));
 
-// connect MongoDB
-mongoose
-  .connect(
-    "mongodb+srv://qldkmh_db_user:nOxCJf4m1xHMXmOZ@qldkmh.9t9ql4q.mongodb.net/QLDKMH",
-  )
-  .then(() => console.log("✅ Connected MongoDB Atlas"))
-  .catch((err) => console.log(err));
-
-// route
-const courseRoute = require("./route/courseRoute");
-const enrollmentRoute = require("./route/enrollmentRoute");
-const studentRoutes = require("./route/studentRoute");
-
+// ─── Trang chủ ────────────────────────────────────────────
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "view", "./public/trangchu.html"));
+  res.sendFile(path.join(__dirname, "view", "public", "trangchu.html"));
 });
 
-app.use("/courses", courseRoute);
-app.use("/students", studentRoutes);
-app.use("/enrollments", enrollmentRoute);
+// ─── Routes ───────────────────────────────────────────────
+app.use("/auth", require("./routes/authRoute"));
+app.use("/courses", require("./routes/courseRoute"));
+app.use("/students", require("./routes/studentRoute"));
+app.use("/enrollments", require("./routes/enrollmentRoute"));
+app.use("/semesters", require("./routes/semesterRoute"));
 
-app.listen(port, () => {
-  console.log(`App listening at http://localhost:${port}`);
+// ─── 404 Handler ──────────────────────────────────────────
+app.use((req, res) => {
+  res.status(404).json({ success: false, message: `Route ${req.originalUrl} không tồn tại` });
+});
+
+// ─── Error Handler (phải đặt cuối cùng) ──────────────────
+app.use(errorHandler);
+
+// ─── Kết nối DB & Khởi động server ───────────────────────
+connectDB().then(() => {
+  app.listen(PORT, () => {
+    console.log(`🚀 Server đang chạy tại http://localhost:${PORT}`);
+  });
 });

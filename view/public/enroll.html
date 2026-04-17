@@ -3,30 +3,59 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Đăng ký môn học trực tuyến</title>
-  <link rel="stylesheet" href="/view/css/style.css">
+  <title>Đăng ký môn học — QLDKMH</title>
+  <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-    <header>
+  <header>
     <h1>🎓 Hệ thống đăng ký môn học</h1>
-    <p>Quản lý và đăng ký môn học </p>
+    <p>Quản lý và đăng ký môn học</p>
   </header>
   <nav>
     <a href="trangchu.html">🏠 Trang chủ</a>
-    <a href="courses.html">📚 Quản lý môn học</a>
+    <a href="courses.html">📚 Môn học</a>
+    <a href="students.html" class="admin-only">👨‍🎓 Sinh viên</a>
+    <a href="add-courses.html" class="admin-only">➕ Thêm môn</a>
     <a href="enroll.html">📝 Đăng ký môn</a>
+    <a href="timetable.html">📅 Lịch học</a>
   </nav>
-  <div class="container">
-    <h1>📌 ĐĂNG KÝ MÔN HỌC HỌC</h1>
-    <div class="student-info">
-      <label>👨‍🎓 Chọn sinh viên: </label>
-      <select id="studentSelect" style="padding: 6px; width: 260px;"></select>
-      <span id="studentDetail" style="margin-left: 20px;"></span>
+
+  <div class="container" style="align-items:stretch; max-width:1100px; margin:0 auto;">
+    <h2 style="text-align:center; margin:20px 0;">📌 Đăng ký môn học</h2>
+
+    <!-- Thông tin sinh viên (admin: dropdown, student: tự động) -->
+    <div class="student-info" id="student-info-area">
+      <!-- Render bởi JS -->
     </div>
+
     <div class="reg-container">
       <div class="course-box">
-        <h2>📖 Danh sách môn có thể đăng ký</h2>
-        <div id="courseList"></div>
+        <h2>📖 Môn có thể đăng ký</h2>
+
+        <!-- BỘ LỌC TÌM KIẾM -->
+        <div class="filter-section" style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+          <input type="text" id="searchCourse" placeholder="🔍 Tìm tên hoặc mã môn..." style="flex: 1; min-width: 200px; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+          <select id="filterDay" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+            <option value="">📅 Tất cả các Thứ</option>
+            <option value="Thứ 2">Thứ 2</option>
+            <option value="Thứ 3">Thứ 3</option>
+            <option value="Thứ 4">Thứ 4</option>
+            <option value="Thứ 5">Thứ 5</option>
+            <option value="Thứ 6">Thứ 6</option>
+            <option value="Thứ 7">Thứ 7</option>
+            <option value="Chủ nhật">Chủ nhật</option>
+          </select>
+          <select id="filterStatus" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+            <option value="">Trạng thái chỗ</option>
+            <option value="available">Chỉ hiện còn chỗ</option>
+          </select>
+          <label style="display: flex; align-items: center; gap: 5px; font-size: 14px; color: #555; background: white; padding: 0 10px; border-radius: 4px; border: 1px solid #ccc; cursor: pointer;">
+            <input type="checkbox" id="filterConflict" style="width: auto; margin: 0; cursor: pointer;">
+            Ẩn môn trùng lịch
+          </label>
+        </div>
+
+        <div id="courseList"><p style="color:#999">Chọn sinh viên để xem danh sách môn...</p></div>
       </div>
       <div class="enrolled-box">
         <h2>✅ Môn đã đăng ký</h2>
@@ -35,6 +64,8 @@
       </div>
     </div>
   </div>
-  <script src="/view/js/register.js"></script>
+
+  <script src="/js/auth.js"></script>
+  <script src="/js/register.js"></script>
 </body>
 </html>

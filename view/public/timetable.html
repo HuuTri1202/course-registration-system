@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thời khóa biểu — QLDKMH</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header>
+    <h1>🎓 Hệ thống đăng ký môn học</h1>
+    <p>Quản lý và đăng ký môn học</p>
+  </header>
+  <nav>
+    <a href="trangchu.html">🏠 Trang chủ</a>
+    <a href="courses.html">📚 Môn học</a>
+    <a href="students.html" class="admin-only">👨‍🎓 Sinh viên</a>
+    <a href="add-courses.html" class="admin-only">➕ Thêm môn</a>
+    <a href="enroll.html">📝 Đăng ký môn</a>
+    <a href="timetable.html">📅 Lịch học</a>
+  </nav>
+
+  <div class="container" style="max-width:1100px; margin:0 auto; padding-top: 20px;">
+    <!-- BẢNG THỜI KHÓA BIỂU DẠNG LƯỚI -->
+    <div class="timetable-section" style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+      <h2 style="text-align:center; margin-bottom: 20px; color: #1a1a2e;">📅 Thời khóa biểu</h2>
+      
+      <!-- Lựa chọn sinh viên cho Admin -->
+      <div id="student-select-area" style="text-align:center; margin-bottom: 20px; display: none;">
+        <label><strong>👨‍🎓 Xem lịch của sinh viên:</strong></label>
+        <select id="studentSelect" style="padding:8px; width:300px; margin-left:10px;">
+          <option value="">-- Chọn sinh viên --</option>
+        </select>
+      </div>
+
+      <div class="timetable-grid" id="timetable-grid">
+        <p style="text-align: center; color: #999; padding: 20px;">⏳ Đang tải thời khóa biểu...</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/auth.js"></script>
+  <script src="/js/timetable.js"></script>
+</body>
+</html>

@@ -2,44 +2,91 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Hệ thống đăng ký môn học</title>
-  <link rel="stylesheet" href="/view/css/style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trang chủ — QLDKMH</title>
+  <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
   <header>
     <h1>🎓 Hệ thống đăng ký môn học</h1>
-    <p>Quản lý và đăng ký môn học </p>
+    <p>Quản lý và đăng ký môn học</p>
   </header>
   <nav>
-    <a href="courses.html">📚 Danh sách môn học </a>
-    <a href="add-courses.html">➕ Thêm môn</a>
+    <a href="trangchu.html">🏠 Trang chủ</a>
+    <a href="courses.html">📚 Môn học</a>
+    <a href="students.html" class="admin-only">👨‍🎓 Sinh viên</a>
+    <a href="add-courses.html" class="admin-only">➕ Thêm môn</a>
     <a href="enroll.html">📝 Đăng ký môn</a>
+    <a href="timetable.html">📅 Lịch học</a>
   </nav>
 
-  <main>
-    <h2>Chào mừng bạn 👋</h2>
-    <p>Chọn chức năng bên dưới để bắt đầu:</p>
+  <main style="max-width: 1100px; margin: 20px auto; padding: 0 20px;">
+    <h2 id="welcome-msg" style="color: #1a1a2e; margin-bottom: 20px;">Chào mừng bạn 👋</h2>
 
-    <div class="card-container">
-      <div class="card">
-        <h3>📚 Danh sách môn học</h3>
-        <p>Xem, sửa, xóa môn học</p>
-        <a href="courses.html">Đi tới</a>
+    <!-- DASHBOARD DÀNH CHO ADMIN -->
+    <div id="admin-dashboard" style="display: none;">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px;">
+        <div style="background: linear-gradient(135deg, #4361ee, #3a0ca3); color: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+          <h3>👥 Sinh viên</h3>
+          <p id="stat-students" style="font-size: 2rem; font-weight: bold; margin-top: 10px;">...</p>
+        </div>
+        <div style="background: linear-gradient(135deg, #f72585, #b5179e); color: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+          <h3>📚 Môn học mở</h3>
+          <p id="stat-courses" style="font-size: 2rem; font-weight: bold; margin-top: 10px;">...</p>
+        </div>
+        <div style="background: linear-gradient(135deg, #2ec4b6, #011627); color: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+          <h3>📝 Lượt đăng ký</h3>
+          <p id="stat-enrollments" style="font-size: 2rem; font-weight: bold; margin-top: 10px;">...</p>
+        </div>
       </div>
 
-      <div class="card">
-        <h3>➕ Thêm môn học</h3>
-        <p>Tạo môn học mới</p>
-        <a href="add-courses.html">Đi tới</a>
+      <div class="card-container">
+        <div class="card">
+          <h3>📚 Quản lý Môn học</h3>
+          <p>Thêm, sửa, xóa các môn học trong học kỳ.</p>
+          <a href="courses.html">Quản lý ngay</a>
+        </div>
+        <div class="card">
+          <h3>➕ Thêm môn nhanh</h3>
+          <p>Mở lớp và xếp lịch cho sinh viên.</p>
+          <a href="add-courses.html">Đi tới</a>
+        </div>
+        <div class="card">
+          <h3>📅 Xem lịch Sinh viên</h3>
+          <p>Kiểm tra thời khóa biểu của một sinh viên bất kỳ.</p>
+          <a href="timetable.html">Tra cứu</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- DASHBOARD DÀNH CHO SINH VIÊN -->
+    <div id="student-dashboard" style="display: none;">
+      <div style="background: #f8f9fa; border-left: 4px solid #4361ee; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+        <h3>🎓 Thông tin hồ sơ</h3>
+        <p style="margin-top: 10px; color: #555;" id="student-profile-info">Đang tải dữ liệu...</p>
       </div>
 
-      <div class="card">
-        <h3>📝 Đăng ký môn</h3>
-        <p>Đăng ký học phần</p>
-        <a href="enroll.html">Đi tới</a>
+      <div class="card-container">
+        <div class="card" style="border-top: 4px solid #f72585;">
+          <h3>📝 Đăng ký môn</h3>
+          <p>Cổng đăng ký đang <strong>Mở</strong>. Chọn môn học cho học kỳ mới.</p>
+          <a href="enroll.html">Vào Đăng ký</a>
+        </div>
+        <div class="card" style="border-top: 4px solid #4361ee;">
+          <h3>📅 Thời khóa biểu</h3>
+          <p>Xem lịch học dạng lưới chi tiết các ngày trong tuần.</p>
+          <a href="timetable.html">Xem Lịch</a>
+        </div>
+        <div class="card" style="border-top: 4px solid #2ec4b6;">
+          <h3>📚 Tra cứu Môn học</h3>
+          <p>Xem danh sách toàn bộ các môn đang được nhà trường mở.</p>
+          <a href="courses.html">Tra cứu</a>
+        </div>
       </div>
     </div>
   </main>
-  <script src="/view/js/script.js"></script>
+
+  <script src="/js/auth.js"></script>
+  <script src="/js/trangchu.js"></script>
 </body>
 </html>

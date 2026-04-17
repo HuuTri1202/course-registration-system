@@ -2,61 +2,66 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Sửa môn học</title>
-  <link rel="stylesheet" href="/view/css/style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sửa môn học — QLDKMH</title>
+  <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
   <header>
     <h1>🎓 Hệ thống đăng ký môn học</h1>
-    <p>Quản lý và đăng ký môn học </p>
+    <p>Quản lý và đăng ký môn học</p>
   </header>
   <nav>
     <a href="trangchu.html">🏠 Trang chủ</a>
-    <a href="courses.html">📚 Quản lý môn học</a>
+    <a href="courses.html">📚 Môn học</a>
+    <a href="students.html" class="admin-only">👨‍🎓 Sinh viên</a>
+    <a href="add-courses.html" class="admin-only">➕ Thêm môn</a>
     <a href="enroll.html">📝 Đăng ký môn</a>
+    <a href="timetable.html">📅 Lịch học</a>
   </nav>
-<div class="container">
-  <h2>✏️ Sửa môn học</h2>
 
-  <form id="form" class="form-card">
+  <div class="container">
+    <h2>✏️ Sửa môn học</h2>
+    <form id="form" class="form-card">
+      <label>Mã môn học</label>
+      <input id="code" disabled>
 
-    <label>Mã môn học</label>
-    <input id="code" disabled>
+      <label>Tên môn</label>
+      <input id="name" required>
 
-    <label>Tên môn</label>
-    <input id="name" required>
+      <label>Giảng viên</label>
+      <input id="teacher" required>
 
-    <label>Giảng viên</label>
-    <input id="teacher" required>
+      <label>Số tín chỉ</label>
+      <input type="number" id="credits" min="1" max="10">
 
-    <label>Loại môn</label>
-    <select id="type">
-      <option value="Lý thuyết">Lý thuyết</option>
-      <option value="Thực hành">Thực hành</option>
-      <option value="Lý thuyết + Thực hành">Lý thuyết + Thực hành</option>
-    </select>
+      <label>Loại môn</label>
+      <select id="type">
+        <option value="Lý thuyết">Lý thuyết</option>
+        <option value="Thực hành">Thực hành</option>
+        <option value="Lý thuyết + Thực hành">Lý thuyết + Thực hành</option>
+      </select>
 
-    <label>Sĩ số tối đa</label>
-    <input type="number" id="capacity" min="1" required>
+      <label>Sĩ số tối đa</label>
+      <input type="number" id="capacity" min="1" required>
 
-    <label>Trạng thái</label>
-    <select id="status">
-      <option value="Mở">Mở</option>
-      <option value="Đóng">Đóng</option>
-      <option value="Hủy">Hủy</option>
-    </select>
+      <label>Trạng thái</label>
+      <select id="status">
+        <option value="Mở">Mở</option>
+        <option value="Đóng">Đóng</option>
+        <option value="Hủy">Hủy</option>
+      </select>
 
-    <h3>📅 Lịch học</h3>
-    <div id="schedule-container"></div>
+      <h3>📅 Lịch học</h3>
+      <div id="schedule-container"></div>
+      <button type="button" id="addSchedule">➕ Thêm lịch</button>
 
-    <button type="button" id="addSchedule">➕ Thêm lịch</button>
+      <br><br>
+      <button type="submit">💾 Cập nhật</button>
+    </form>
+  </div>
 
-    <br><br>
-    <button type="submit">Cập nhật</button>
-
-  </form>
-</div>
-
-<script src="/view/js/edit-course.js" defer></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/edit-course.js" defer></script>
 </body>
 </html>

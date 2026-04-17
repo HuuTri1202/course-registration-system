@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quản lý Sinh viên — QLDKMH</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header>
+    <h1>🎓 Hệ thống đăng ký môn học</h1>
+    <p>Quản lý và đăng ký môn học</p>
+  </header>
+  <nav>
+    <a href="trangchu.html">🏠 Trang chủ</a>
+    <a href="courses.html">📚 Môn học</a>
+    <a href="students.html" class="admin-only">👨‍🎓 Sinh viên</a>
+    <a href="add-courses.html" class="admin-only">➕ Thêm môn</a>
+    <a href="enroll.html">📝 Đăng ký môn</a>
+    <a href="timetable.html">📅 Lịch học</a>
+  </nav>
+
+  <div class="container" style="max-width:1200px; margin: 20px auto;">
+    <h2 style="text-align:center; margin-bottom: 20px;">👥 Quản lý Sinh viên</h2>
+    
+    <div style="display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap;">
+      
+      <!-- FORM THÊM/SỬA SINH VIÊN -->
+      <div class="form-container" style="flex: 1; min-width: 300px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+        <h3 id="form-title" style="margin-bottom: 15px; border-bottom: 2px solid #eaecf0; padding-bottom: 10px;">➕ Thêm Sinh viên mới</h3>
+        <form id="student-form">
+          <input type="hidden" id="student-id-db">
+          <div class="form-group">
+            <label>Mã Sinh viên <span class="required">*</span></label>
+            <input type="text" id="stu-code" required placeholder="Ví dụ: SV001">
+          </div>
+          <div class="form-group">
+            <label>Họ và tên <span class="required">*</span></label>
+            <input type="text" id="stu-name" required placeholder="Nguyễn Văn A">
+          </div>
+          <div class="form-group">
+            <label>Email <span class="required">*</span></label>
+            <input type="email" id="stu-email" required placeholder="sv001@school.edu.vn">
+          </div>
+          <div class="form-group">
+            <label>Lớp</label>
+            <input type="text" id="stu-class" placeholder="12A1">
+          </div>
+          <div class="form-group">
+            <label>Chuyên ngành</label>
+            <input type="text" id="stu-major" placeholder="Công nghệ thông tin">
+          </div>
+          
+          <div style="display: flex; gap: 10px; margin-top: 15px;">
+            <button type="submit" id="btn-save" style="flex: 1;">💾 Lưu thông tin</button>
+            <button type="button" id="btn-cancel" style="display:none; background:#ccc; color:#333; flex: 1;">❌ Hủy</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- DANH SÁCH SINH VIÊN -->
+      <div class="list-container" style="flex: 2; min-width: 500px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+          <h3>📋 Danh sách</h3>
+          <input type="text" id="search-student" placeholder="🔍 Tìm mã hoặc tên..." style="padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 250px;">
+        </div>
+        
+        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+          <thead>
+            <tr style="background: #f8f9fa; border-bottom: 2px solid #ddd; text-align: left;">
+              <th style="padding: 10px;">Mã SV</th>
+              <th style="padding: 10px;">Họ tên</th>
+              <th style="padding: 10px;">Lớp</th>
+              <th style="padding: 10px;">Ngành</th>
+              <th style="padding: 10px; text-align: center;">Thao tác</th>
+            </tr>
+          </thead>
+          <tbody id="student-tbody">
+            <tr><td colspan="5" style="text-align:center; padding: 20px;">Đang tải dữ liệu...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="/js/auth.js"></script>
+  <script src="/js/students.js"></script>
+</body>
+</html>

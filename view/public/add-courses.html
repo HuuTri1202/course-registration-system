@@ -2,42 +2,48 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Thêm môn học</title>
-  <link rel="stylesheet" href="/view/css/style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thêm môn học — QLDKMH</title>
+  <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-    <header>
+  <header>
     <h1>🎓 Hệ thống đăng ký môn học</h1>
-    <p>Quản lý và đăng ký môn học </p>
+    <p>Quản lý và đăng ký môn học</p>
   </header>
   <nav>
     <a href="trangchu.html">🏠 Trang chủ</a>
-    <a href="courses.html">📚 Quản lý môn học</a>
+    <a href="courses.html">📚 Môn học</a>
+    <a href="students.html" class="admin-only">👨‍🎓 Sinh viên</a>
+    <a href="add-courses.html" class="admin-only">➕ Thêm môn</a>
     <a href="enroll.html">📝 Đăng ký môn</a>
+    <a href="timetable.html">📅 Lịch học</a>
   </nav>
-<div class="container">
-  <h2>📚 Thêm môn học</h2>
 
-  <form id="form" class="form-card">
-    <input placeholder="Mã môn" id="code" required>
-    <input placeholder="Tên môn" id="name" required>
-    <input placeholder="Giảng viên" id="teacher" required>
+  <div class="container">
+    <h2>📚 Thêm môn học</h2>
+    <form id="form" class="form-card">
+      <input placeholder="Mã môn" id="code" required>
+      <input placeholder="Tên môn" id="name" required>
+      <input placeholder="Giảng viên" id="teacher" required>
+      <input type="number" placeholder="Số tín chỉ" id="credits" min="1" max="10" required>
 
-    <select id="type">
-      <option>Lý thuyết</option>
-      <option>Thực hành</option>
-      <option>Lý thuyết + Thực hành</option>
-    </select>
+      <select id="type">
+        <option>Lý thuyết</option>
+        <option>Thực hành</option>
+        <option>Lý thuyết + Thực hành</option>
+      </select>
 
-    <input type="number" id="capacity" placeholder="Sức chứa" required>
+      <input type="number" id="capacity" placeholder="Sức chứa tối đa" required>
 
-    <h4>📅 Lịch học</h4>
-    <div id="schedule-container"></div>
+      <h4>📅 Lịch học</h4>
+      <div id="schedule-container"></div>
 
-    <button type="submit">Tạo môn học</button>
-  </form>
-</div>
+      <button type="submit">✅ Tạo môn học</button>
+    </form>
+  </div>
 
-<script src="/view/js/add-courses.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/add-courses.js"></script>
 </body>
 </html>
