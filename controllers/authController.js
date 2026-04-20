@@ -6,9 +6,14 @@ const Student = require("../models/student");
 // ─── Tạo JWT token ────────────────────────────────────────
 const signToken = (user) =>
   jwt.sign(
-    { id: user._id, username: user.username, role: user.role, student: user.student },
+    {
+      id: user._id,
+      username: user.username,
+      role: user.role,
+      student: user.student,
+    },
     process.env.JWT_SECRET,
-    { expiresIn: "7d" }
+    { expiresIn: "7d" },
   );
 
 // ─── POST /auth/register ──────────────────────────────────
@@ -30,14 +35,20 @@ exports.register = async (req, res, next) => {
     let studentObj = null;
     if (!role || role === "student") {
       if (!studentId) {
-        const err = new Error("Mã sinh viên là bắt buộc khi đăng ký tài khoản sinh viên");
+        const err = new Error(
+          "Mã sinh viên là bắt buộc khi đăng ký tài khoản sinh viên",
+        );
         err.statusCode = 400;
         return next(err);
       }
 
-      const student = await Student.findOne({ studentId: studentId.toUpperCase() });
+      const student = await Student.findOne({
+        studentId: studentId.toUpperCase(),
+      });
       if (!student) {
-        const err = new Error("Mã sinh viên không tồn tại trong hệ thống. Liên hệ Admin để được thêm vào.");
+        const err = new Error(
+          "Mã sinh viên không tồn tại trong hệ thống. Liên hệ Admin để được thêm vào.",
+        );
         err.statusCode = 404;
         return next(err);
       }
@@ -45,7 +56,9 @@ exports.register = async (req, res, next) => {
       // Kiểm tra sinh viên đã có tài khoản chưa
       const existingUser = await User.findOne({ student: student._id });
       if (existingUser) {
-        const err = new Error("Sinh viên này đã có tài khoản. Vui lòng đăng nhập.");
+        const err = new Error(
+          "Sinh viên này đã có tài khoản. Vui lòng đăng nhập.",
+        );
         err.statusCode = 400;
         return next(err);
       }
@@ -76,7 +89,7 @@ exports.register = async (req, res, next) => {
         id: user._id,
         username: user.username,
         role: user.role,
-        student: studentObj, // ✅ Trả về nguyên object student để localStorage lưu đầy đủ
+        student: studentObj, //  Trả về nguyên object student để localStorage lưu đầy đủ
       },
     });
   } catch (err) {
@@ -96,10 +109,9 @@ exports.login = async (req, res, next) => {
     }
 
     // Tìm user và populate thông tin sinh viên
-    const user = await User.findOne({ username: username.toLowerCase() }).populate(
-      "student",
-      "studentId fullName email major className"
-    );
+    const user = await User.findOne({
+      username: username.toLowerCase(),
+    }).populate("student", "studentId fullName email major className");
 
     if (!user) {
       const err = new Error("Tên đăng nhập hoặc mật khẩu không đúng");
@@ -108,7 +120,9 @@ exports.login = async (req, res, next) => {
     }
 
     if (!user.isActive) {
-      const err = new Error("Tài khoản đã bị khóa. Liên hệ Admin để được hỗ trợ.");
+      const err = new Error(
+        "Tài khoản đã bị khóa. Liên hệ Admin để được hỗ trợ.",
+      );
       err.statusCode = 403;
       return next(err);
     }
@@ -144,7 +158,10 @@ exports.getMe = async (req, res, next) => {
   try {
     const user = await User.findById(req.user.id)
       .select("-password")
-      .populate("student", "studentId fullName email major className gpa status");
+      .populate(
+        "student",
+        "studentId fullName email major className gpa status",
+      );
 
     if (!user) {
       const err = new Error("Không tìm thấy người dùng");

@@ -37,10 +37,32 @@ exports.getCourseByCode = async (req, res, next) => {
 // ─── CREATE ───────────────────────────────────────────────
 exports.createCourse = async (req, res, next) => {
   try {
-    const course = new Course(req.body);
+    const data = req.body;
+
+    // FIX: nếu không có status thì set mặc định
+    const normalizeStatus = (status) => {
+      if (!status) return "Mở";
+
+      const map = {
+        mo: "Mở",
+        dong: "Đóng",
+        huy: "Hủy",
+      };
+
+      return map[status.toLowerCase()] || status;
+    };
+    data.status = normalizeStatus(data.status);
+    const course = new Course(data);
+
     autoCloseCourse(course);
+
     const newCourse = await course.save();
-    res.status(201).json({ success: true, message: "Tạo môn học thành công", data: newCourse });
+
+    res.status(201).json({
+      success: true,
+      message: "Tạo môn học thành công",
+      data: newCourse,
+    });
   } catch (err) {
     next(err);
   }
@@ -59,7 +81,15 @@ exports.updateCourse = async (req, res, next) => {
     }
 
     // Cập nhật các trường
-    const { courseName, instructor, courseType, maxCapacity, status, credits, schedule } = req.body;
+    const {
+      courseName,
+      instructor,
+      courseType,
+      maxCapacity,
+      status,
+      credits,
+      schedule,
+    } = req.body;
     if (courseName !== undefined) course.courseName = courseName;
     if (instructor !== undefined) course.instructor = instructor;
     if (courseType !== undefined) course.courseType = courseType;
