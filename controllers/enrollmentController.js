@@ -13,6 +13,7 @@ exports.getAllEnrollments = async (req, res, next) => {
     const enrollments = await Enrollment.find(filter)
       .populate("student", "studentId fullName email major")
       .populate("course", "courseCode courseName instructor credits schedule");
+
     res.json({ success: true, data: enrollments });
   } catch (err) {
     next(err);
@@ -25,11 +26,11 @@ exports.getEnrollmentById = async (req, res, next) => {
     const enrollment = await Enrollment.findById(req.params.id)
       .populate("student")
       .populate("course");
+
     if (!enrollment) {
-      const err = new Error("Đăng ký không tồn tại");
-      err.statusCode = 404;
-      return next(err);
+      return next(new Error("Đăng ký không tồn tại"));
     }
+
     res.json({ success: true, data: enrollment });
   } catch (err) {
     next(err);
@@ -41,76 +42,98 @@ exports.createEnrollment = async (req, res, next) => {
   try {
     const { student, course } = req.body;
 
-    // Kiểm tra sinh viên tồn tại
+    // ─── CHECK STUDENT ───
     const studentData = await Student.findById(student);
     if (!studentData) {
-      const err = new Error("Sinh viên không tồn tại");
-      err.statusCode = 404;
-      return next(err);
+      return next(new Error("Sinh viên không tồn tại"));
     }
 
-    // Kiểm tra môn học tồn tại và còn chỗ
+    // ─── CHECK COURSE ───
     const courseData = await Course.findById(course);
     if (!courseData) {
-      const err = new Error("Môn học không tồn tại");
-      err.statusCode = 404;
-      return next(err);
+      return next(new Error("Môn học không tồn tại"));
     }
+
     if (courseData.status === "Hủy") {
-      const err = new Error("Môn học đã bị hủy");
-      err.statusCode = 400;
-      return next(err);
+      return next(new Error("Môn học đã bị hủy"));
     }
+
     if (courseData.currentEnrollment >= courseData.maxCapacity) {
-      const err = new Error("Môn học đã hết chỗ");
-      err.statusCode = 400;
-      return next(err);
+      return next(new Error("Môn học đã hết chỗ"));
     }
 
-    // Kiểm tra đăng ký trùng
+    // ─── CHECK EXISTING ───
     const existing = await Enrollment.findOne({ student, course });
+
     if (existing) {
-      const err = new Error("Sinh viên đã đăng ký môn này rồi");
-      err.statusCode = 400;
-      return next(err);
+      if (existing.status === "Đã đăng ký") {
+        return next(new Error("Sinh viên đã đăng ký môn này rồi"));
+      }
+
+      // ✅ ĐÃ HỦY → CHO ĐĂNG KÝ LẠI
+      existing.status = "Đã đăng ký";
+      await existing.save();
+
+      // cập nhật sĩ số
+      courseData.currentEnrollment += 1;
+      if (courseData.currentEnrollment >= courseData.maxCapacity) {
+        courseData.status = "Đóng";
+      }
+      await courseData.save();
+
+      return res.json({
+        success: true,
+        message: "Đăng ký lại thành công",
+        data: existing,
+      });
     }
 
-    // Kiểm tra trùng lịch học (Time Conflict Detection)
-    const currentEnrollments = await Enrollment.find({ student }).populate("course");
-    const newSchedules = courseData.schedule || [];
+    // ─── CHECK TRÙNG LỊCH ───
+    const currentEnrollments = await Enrollment.find({
+      student,
+      status: "Đã đăng ký",
+    }).populate("course");
 
     for (const enr of currentEnrollments) {
-      if (!enr.course) continue; // Bỏ qua nếu course bị null
-      const existSchedules = enr.course.schedule || [];
+      if (!enr.course) continue;
 
-      for (const newSch of newSchedules) {
-        for (const existSch of existSchedules) {
-          if (newSch.dayOfWeek === existSch.dayOfWeek) {
-            // Kiểm tra giao nhau: Bắt đầu môn A < Kết thúc môn B VÀ Kết thúc môn A > Bắt đầu môn B
-            if (newSch.startTime < existSch.endTime && newSch.endTime > existSch.startTime) {
-              const err = new Error(
-                `Trùng lịch học! Môn này trùng giờ với môn '${enr.course.courseName}' vào ${newSch.dayOfWeek} (Từ ${existSch.startTime} - ${existSch.endTime})`
-              );
-              err.statusCode = 400;
-              return next(err);
-            }
+      for (const newSch of courseData.schedule || []) {
+        for (const existSch of enr.course.schedule || []) {
+          if (
+            newSch.dayOfWeek === existSch.dayOfWeek &&
+            newSch.startTime < existSch.endTime &&
+            newSch.endTime > existSch.startTime
+          ) {
+            return res.status(400).json({
+              success: false,
+              message: `❌ Trùng lịch với '${enr.course.courseName}' (${existSch.startTime}-${existSch.endTime})`,
+            });
           }
         }
       }
     }
 
-    // Tạo đăng ký mới
-    const enrollment = new Enrollment(req.body);
+    // ─── CREATE NEW ───
+    const enrollment = new Enrollment({
+      student,
+      course,
+      status: "Đã đăng ký",
+    });
+
     await enrollment.save();
 
-    // Tăng sĩ số và kiểm tra đóng lớp
+    // ─── UPDATE COURSE ───
     courseData.currentEnrollment += 1;
     if (courseData.currentEnrollment >= courseData.maxCapacity) {
       courseData.status = "Đóng";
     }
     await courseData.save();
 
-    res.status(201).json({ success: true, message: "Đăng ký thành công", data: enrollment });
+    res.status(201).json({
+      success: true,
+      message: "Đăng ký thành công",
+      data: enrollment,
+    });
   } catch (err) {
     next(err);
   }
@@ -120,45 +143,70 @@ exports.createEnrollment = async (req, res, next) => {
 exports.updateEnrollmentStatus = async (req, res, next) => {
   try {
     const { status } = req.body;
+
     const enrollment = await Enrollment.findByIdAndUpdate(
       req.params.id,
       { status },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
+
     if (!enrollment) {
-      const err = new Error("Đăng ký không tồn tại");
-      err.statusCode = 404;
-      return next(err);
+      return next(new Error("Đăng ký không tồn tại"));
     }
-    res.json({ success: true, message: "Cập nhật trạng thái thành công", data: enrollment });
+
+    res.json({
+      success: true,
+      message: "Cập nhật trạng thái thành công",
+      data: enrollment,
+    });
   } catch (err) {
     next(err);
   }
 };
 
-// ─── DELETE ───────────────────────────────────────────────
+// ─── DELETE (HỦY ĐĂNG KÝ) ─────────────────────────────────
 exports.deleteEnrollment = async (req, res, next) => {
   try {
     const enrollment = await Enrollment.findById(req.params.id);
+
     if (!enrollment) {
-      const err = new Error("Đăng ký không tồn tại");
-      err.statusCode = 404;
-      return next(err);
+      return res.status(404).json({
+        success: false,
+        message: "Đăng ký không tồn tại",
+      });
     }
 
-    // Giảm sĩ số môn học khi hủy đăng ký
+    // ❗ Nếu đã hủy rồi thì thôi
+    if (enrollment.status === "Đã hủy") {
+      return res.status(400).json({
+        success: false,
+        message: "Môn này đã được hủy trước đó",
+      });
+    }
+
+    // 👉 cập nhật status thay vì delete
+    enrollment.status = "Đã hủy";
+    await enrollment.save();
+
+    // 👉 giảm sĩ số
     const course = await Course.findById(enrollment.course);
     if (course) {
       course.currentEnrollment = Math.max(0, course.currentEnrollment - 1);
-      // Mở lại lớp nếu trước đó đầy
-      if (course.status === "Đóng" && course.currentEnrollment < course.maxCapacity) {
+
+      if (
+        course.status === "Đóng" &&
+        course.currentEnrollment < course.maxCapacity
+      ) {
         course.status = "Mở";
       }
+
       await course.save();
     }
 
-    await enrollment.deleteOne();
-    res.json({ success: true, message: "Đã hủy đăng ký" });
+    res.json({
+      success: true,
+      message: "Đã hủy đăng ký",
+    });
   } catch (err) {
     next(err);
   }

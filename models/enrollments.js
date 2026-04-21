@@ -24,8 +24,8 @@ const enrollmentSchema = new mongoose.Schema({
   // Trạng thái
   status: {
     type: String,
-    enum: ["Đã đăng kí", "Hủy", "Hoàn thành", "Chờ duyệt"],
-    default: "Chờ duyệt",
+    enum: ["Đã đăng ký", "Đã hủy"],
+    default: "Đã đăng ký",
   },
 
   // Timestamps
@@ -40,7 +40,7 @@ const enrollmentSchema = new mongoose.Schema({
 });
 
 // Đảm bảo một sinh viên không đăng ký cùng môn hai lần
-enrollmentSchema.index({ student: 1, course: 1 }, { unique: true });
+// enrollmentSchema.index({ student: 1, course: 1 }, { unique: true });
 
 // Tự động cập nhật updatedAt mỗi khi lưu
 enrollmentSchema.pre("save", function () {

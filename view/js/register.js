@@ -129,29 +129,81 @@ async function loadAvailableCourses() {
   }
 }
 
+// ─── Check conflict ───────────────────────────────────
+function isConflict(course, enrolledCourses) {
+  if (!course.schedule || !enrolledCourses.length) return false;
+
+  for (const sch of course.schedule) {
+    for (const enrolled of enrolledCourses) {
+      if (!enrolled.schedule) continue;
+
+      for (const eSch of enrolled.schedule) {
+        if (sch.dayOfWeek === eSch.dayOfWeek) {
+          if (sch.startTime < eSch.endTime && sch.endTime > eSch.startTime) {
+            return true; // BỊ TRÙNG
+          }
+        }
+      }
+    }
+  }
+  return false;
+}
 // ─── Render available ─────────────────────────────────
 function renderAvailableCourses() {
   const container = document.getElementById("courseList");
 
   if (!container) return;
 
-  if (!allAvailableCourses.length) {
-    container.innerHTML = "<p>Không có môn nào</p>";
+  let filteredCourses = [...allAvailableCourses];
+
+  // 🔍 FILTER TRÙNG LỊCH
+  const hideConflict = document.getElementById("filterConflict")?.checked;
+
+  if (hideConflict) {
+    filteredCourses = filteredCourses.filter(
+      (c) => !isConflict(c, currentEnrolledCourses),
+    );
+  }
+
+  if (!filteredCourses.length) {
+    container.innerHTML = "<p>Không có môn phù hợp</p>";
     return;
   }
 
-  container.innerHTML = allAvailableCourses
-    .map(
-      (c) => `
-    <div class="course-item">
-      <strong>${c.courseCode} - ${c.courseName}</strong><br>
-      Tín chỉ: ${c.credits}<br>
-      Trạng thái: <span class="status-badge">${c.status || "Không rõ"}</span>
-      <br>
-      <button class="btn-reg" data-id="${c._id}">Đăng ký</button>
-    </div>
-  `,
-    )
+  container.innerHTML = filteredCourses
+    .map((c) => {
+      let scheduleHTML = "<i>Chưa có lịch</i>";
+
+      if (c.schedule?.length > 0) {
+        scheduleHTML = c.schedule
+          .map(
+            (s) => `
+          <li>
+            ${s.type} | ${s.dayOfWeek} | 
+            ${s.startTime} - ${s.endTime} | 
+            ${s.location}
+          </li>
+        `,
+          )
+          .join("");
+      }
+
+      return `
+        <div class="course-item">
+          <strong>${c.courseCode} - ${c.courseName}</strong><br>
+          👨‍🏫 ${c.instructor}<br>
+          📊 ${c.credits} tín chỉ
+
+          <ul>${scheduleHTML}</ul>
+
+          <span class="status-badge">${c.status}</span><br>
+
+          <button class="btn-reg" data-id="${c._id}">
+            Đăng ký
+          </button>
+        </div>
+      `;
+    })
     .join("");
 
   document.querySelectorAll(".btn-reg").forEach((btn) => {
@@ -172,16 +224,20 @@ async function enrollCourse(courseId) {
     });
 
     const data = await res.json();
-    if (!res.ok) throw new Error(data.message);
+
+    if (!res.ok) {
+      console.log("ERROR:", data);
+      throw new Error(data.message || "Đăng ký thất bại");
+    }
 
     alert("✅ Đăng ký thành công");
+
     loadAvailableCourses();
     loadEnrolledCourses();
   } catch (err) {
     alert("❌ " + err.message);
   }
 }
-
 // ─── Load enrolled ────────────────────────────────────
 async function loadEnrolledCourses() {
   if (!currentStudent) return;
@@ -206,41 +262,50 @@ async function loadEnrolledCourses() {
 function renderEnrolledCourses(enrollments) {
   const container = document.getElementById("enrolledCourses");
 
-  if (!enrollments.length) {
+  // ❗ CHỈ LẤY MÔN CHƯA HỦY
+  const activeEnrollments = enrollments.filter((e) => e.status !== "Đã hủy");
+
+  if (!activeEnrollments.length) {
     container.innerHTML = "<p>Chưa đăng ký</p>";
     return;
   }
 
-  container.innerHTML = enrollments
+  container.innerHTML = activeEnrollments
     .map((e) => {
-      const course = e.course || {};
-      const status = e.status || "Không rõ";
+      const c = e.course || {};
 
-      const getStatusClass = (status) => {
-        switch (status) {
-          case "Đã đăng ký":
-            return "status-active";
-          case "Đã hủy":
-            return "status-cancel";
-          case "Mở":
-            return "status-open";
-          case "Đóng":
-            return "status-closed";
-          default:
-            return "status-default";
-        }
-      };
+      let scheduleHTML = "<i>Chưa có lịch</i>";
+
+      if (c.schedule?.length > 0) {
+        scheduleHTML = c.schedule
+          .map(
+            (s) => `
+        <li>
+          ${s.type} | ${s.dayOfWeek} |
+          ${s.startTime} - ${s.endTime} |
+          ${s.location}
+        </li>
+      `,
+          )
+          .join("");
+      }
 
       return `
       <div class="course-item">
-        <strong>${course.courseCode || "??"} - ${course.courseName || "??"}</strong><br>
-        Tín chỉ: ${course.credits || 0}<br>
-        
-        <!-- FIX: hiển thị status rõ -->
-        Trạng thái: 
-        <span class="status-badge">${status}</span>
-        
+        <strong>${c.courseCode} - ${c.courseName}</strong><br>
+
+        👨‍🏫 ${c.instructor || "Chưa có"}<br>
+        📊 ${c.credits || 0} tín chỉ<br>
+
+        <ul>${scheduleHTML}</ul>
+
+        📌 Trạng thái:
+        <span class="status-badge status-active">
+          Đã đăng ký
+        </span>
+
         <br>
+
         <button class="btn-cancel" data-id="${e._id}">
           Hủy
         </button>
