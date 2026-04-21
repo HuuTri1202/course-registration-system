@@ -156,9 +156,35 @@ function renderAvailableCourses() {
 
   let filteredCourses = [...allAvailableCourses];
 
+  // 🔍 SEARCH FILTER
+  const searchText =
+    document.getElementById("searchCourse")?.value.toLowerCase() || "";
+  if (searchText) {
+    filteredCourses = filteredCourses.filter(
+      (c) =>
+        c.courseName.toLowerCase().includes(searchText) ||
+        c.courseCode.toLowerCase().includes(searchText),
+    );
+  }
+
+  // 📅 DAY FILTER
+  const selectedDay = document.getElementById("filterDay")?.value || "";
+  if (selectedDay) {
+    filteredCourses = filteredCourses.filter((c) =>
+      c.schedule.some((s) => s.dayOfWeek === selectedDay),
+    );
+  }
+
+  // STATUS FILTER
+  const statusFilter = document.getElementById("filterStatus")?.value || "";
+  if (statusFilter === "available") {
+    filteredCourses = filteredCourses.filter(
+      (c) => c.currentEnrollment < c.maxCapacity,
+    );
+  }
+
   // 🔍 FILTER TRÙNG LỊCH
   const hideConflict = document.getElementById("filterConflict")?.checked;
-
   if (hideConflict) {
     filteredCourses = filteredCourses.filter(
       (c) => !isConflict(c, currentEnrolledCourses),
