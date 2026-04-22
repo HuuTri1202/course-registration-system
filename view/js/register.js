@@ -112,7 +112,9 @@ async function loadAvailableCourses() {
     const allCourses = cJson.data || [];
     const enrollments = eJson.data || [];
 
-    const enrolledIds = enrollments.map((e) => e.course?._id);
+    const enrolledIds = enrollments
+  .filter((e) => e.status !== "Đã hủy") // ✅ thêm dòng này
+  .map((e) => e.course?._id);
 
     currentEnrolledCourses = enrollments
       .filter((e) => e.status !== "Đã hủy")
@@ -155,37 +157,45 @@ function renderAvailableCourses() {
 
   let filteredCourses = [...allAvailableCourses];
 
-  // 🔍 SEARCH (tên + mã môn)
-  const keyword = document.getElementById("searchCourse")?.value.toLowerCase();
+  // 🔍 SEARCH
+  const keyword =
+    document.getElementById("searchCourse")?.value.toLowerCase() || "";
+
   if (keyword) {
     filteredCourses = filteredCourses.filter(
       (c) =>
         c.courseName.toLowerCase().includes(keyword) ||
-        c.courseCode.toLowerCase().includes(keyword),
+        c.courseCode.toLowerCase().includes(keyword)
     );
   }
 
   // 📅 FILTER THEO THỨ
-  const selectedDay = document.getElementById("filterDay")?.value;
+  const selectedDay =
+    document.getElementById("filterDay")?.value || "";
+
   if (selectedDay) {
     filteredCourses = filteredCourses.filter((c) =>
-      c.schedule?.some((s) => s.dayOfWeek === selectedDay),
+      c.schedule?.some((s) => s.dayOfWeek === selectedDay)
     );
   }
 
-  // 🪑 FILTER CÒN CHỖ (FIX ĐÚNG FIELD BACKEND)
-  const onlyAvailable = document.getElementById("filterStatus")?.value;
-  if (onlyAvailable === "available") {
+  // 🪑 FILTER CÒN CHỖ
+  const statusFilter =
+    document.getElementById("filterStatus")?.value || "";
+
+  if (statusFilter === "available") {
     filteredCourses = filteredCourses.filter(
-      (c) => c.currentEnrollment < c.maxCapacity,
+      (c) => c.currentEnrollment < c.maxCapacity
     );
   }
 
-  // ⚠️ FILTER TRÙNG LỊCH (GIỮ NGUYÊN)
-  const hideConflict = document.getElementById("filterConflict")?.checked;
+  // ⚠️ FILTER TRÙNG LỊCH
+  const hideConflict =
+    document.getElementById("filterConflict")?.checked;
+
   if (hideConflict) {
     filteredCourses = filteredCourses.filter(
-      (c) => !isConflict(c, currentEnrolledCourses),
+      (c) => !isConflict(c, currentEnrolledCourses)
     );
   }
 
@@ -208,7 +218,7 @@ function renderAvailableCourses() {
             ${s.startTime} - ${s.endTime} | 
             ${s.location}
           </li>
-        `,
+        `
           )
           .join("");
       }
@@ -236,7 +246,6 @@ function renderAvailableCourses() {
     btn.onclick = () => enrollCourse(btn.dataset.id);
   });
 }
-
 // ─── Enroll ───────────────────────────────────────────
 async function enrollCourse(courseId) {
   try {

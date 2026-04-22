@@ -31,11 +31,15 @@ app.use("/auth", require("./routes/authRoute"));
 app.use("/courses", require("./routes/courseRoute"));
 app.use("/students", require("./routes/studentRoute"));
 app.use("/enrollments", require("./routes/enrollmentRoute"));
-app.use("/semesters", require("./routes/semesterRoute"));
 
 // ─── 404 Handler ──────────────────────────────────────────
 app.use((req, res) => {
-  res.status(404).json({ success: false, message: `Route ${req.originalUrl} không tồn tại` });
+  res
+    .status(404)
+    .json({
+      success: false,
+      message: `Route ${req.originalUrl} không tồn tại`,
+    });
 });
 
 // ─── Error Handler (phải đặt cuối cùng) ──────────────────
