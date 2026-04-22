@@ -151,14 +151,38 @@ function isConflict(course, enrolledCourses) {
 // ─── Render available ─────────────────────────────────
 function renderAvailableCourses() {
   const container = document.getElementById("courseList");
-
   if (!container) return;
 
   let filteredCourses = [...allAvailableCourses];
 
-  // 🔍 FILTER TRÙNG LỊCH
-  const hideConflict = document.getElementById("filterConflict")?.checked;
+  // 🔍 SEARCH (tên + mã môn)
+  const keyword = document.getElementById("searchCourse")?.value.toLowerCase();
+  if (keyword) {
+    filteredCourses = filteredCourses.filter(
+      (c) =>
+        c.courseName.toLowerCase().includes(keyword) ||
+        c.courseCode.toLowerCase().includes(keyword),
+    );
+  }
 
+  // 📅 FILTER THEO THỨ
+  const selectedDay = document.getElementById("filterDay")?.value;
+  if (selectedDay) {
+    filteredCourses = filteredCourses.filter((c) =>
+      c.schedule?.some((s) => s.dayOfWeek === selectedDay),
+    );
+  }
+
+  // 🪑 FILTER CÒN CHỖ (FIX ĐÚNG FIELD BACKEND)
+  const onlyAvailable = document.getElementById("filterStatus")?.value;
+  if (onlyAvailable === "available") {
+    filteredCourses = filteredCourses.filter(
+      (c) => c.currentEnrollment < c.maxCapacity,
+    );
+  }
+
+  // ⚠️ FILTER TRÙNG LỊCH (GIỮ NGUYÊN)
+  const hideConflict = document.getElementById("filterConflict")?.checked;
   if (hideConflict) {
     filteredCourses = filteredCourses.filter(
       (c) => !isConflict(c, currentEnrolledCourses),
@@ -170,6 +194,7 @@ function renderAvailableCourses() {
     return;
   }
 
+  // render UI
   container.innerHTML = filteredCourses
     .map((c) => {
       let scheduleHTML = "<i>Chưa có lịch</i>";
@@ -192,7 +217,8 @@ function renderAvailableCourses() {
         <div class="course-item">
           <strong>${c.courseCode} - ${c.courseName}</strong><br>
           👨‍🏫 ${c.instructor}<br>
-          📊 ${c.credits} tín chỉ
+          📊 ${c.credits} tín chỉ<br>
+          👥 ${c.currentEnrollment}/${c.maxCapacity}
 
           <ul>${scheduleHTML}</ul>
 
